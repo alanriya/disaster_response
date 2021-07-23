@@ -15,6 +15,15 @@ import pdb
 
 app = Flask(__name__)
 
+CATEGORIES = ['related', 'request', 'offer',
+       'aid_related', 'medical_help', 'medical_products', 'search_and_rescue',
+       'security', 'military', 'child_alone', 'water', 'food', 'shelter',
+       'clothing', 'money', 'missing_people', 'refugees', 'death', 'other_aid',
+       'infrastructure_related', 'transport', 'buildings', 'electricity',
+       'tools', 'hospitals', 'shops', 'aid_centers', 'other_infrastructure',
+       'weather_related', 'floods', 'storm', 'fire', 'earthquake', 'cold',
+       'other_weather', 'direct_report']
+
 def tokenize(text):
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
@@ -41,8 +50,17 @@ def index():
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
+    genre_counts = df.groupby('genre').count()['message'].sort_values(ascending=False)
     genre_names = list(genre_counts.index)
+    
+    # count the number of messages in the DB in each categories
+    category_list = []
+    for category in CATEGORIES:
+        category_df = df[category].value_counts().to_frame().transpose()
+        category_list.append(category_df)
+    all_categories_count = pd.concat(category_list).fillna(0)[1.0]
+    cate_count = list(all_categories_count.values)
+    categories = list(all_categories_count.index)
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -64,8 +82,26 @@ def index():
                     'title': "Genre"
                 }
             }
+        } , {
+            'data': [
+                Bar(
+                    x=categories,
+                    y=cate_count
+                )
+            ],
+
+            'layout': {
+                'title': 'Barchart of Message categories',
+                'yaxis': {
+                    'title': "Historical count"
+                },
+                'xaxis': {
+                    'title': "Message Categories"
+                }
+            }
         }
     ]
+    
     
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
