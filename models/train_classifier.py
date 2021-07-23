@@ -125,7 +125,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print(f'Accuracy : {accuracy_score(list(Y_test[name]), list(y_pred_df[name]))}\n')
 
 def save_model(model, model_filepath):
-   """
+    """
     Summary:
         1) Saving model to pickle file
        
