@@ -44,6 +44,7 @@ def clean_data(df):
         categories[column] = [i.split('-')[1] for i in categories[column]]
         # convert column from string to numeric
         categories[column] = categories[column].astype(float)
+    categories.replace(2, 1, inplace=True) # assume that 2 is 1 to preserve data
     df.drop(['categories'], axis=1, inplace=True)
     df = pd.merge(df, categories, left_index=True, right_index=True)
     df.drop_duplicates(inplace=True)
@@ -60,7 +61,7 @@ def save_data(df, database_filename):
         database_filename: file path in string to the database.
     """
     engine = create_engine('sqlite:///data/DisasterResponse.db')  
-    df.to_sql('message',  con = engine, if_exists='append', index=False)
+    df.to_sql('message',  con = engine, if_exists='replace', index=False)
 
 
 def main():
